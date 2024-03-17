@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Primera Entrega</string>
+    <string name="menu_recipes">Recetas</string>
+    <string name="menu_settings">Ajustes</string>
+    <string name="vegano_label">Vegano</string>
+    <string name="boton_anadir_receta">Añadir Receta</string>
+    <string name="nombre_nueva_receta">Nombre de la receta</string>
+    <string name="boton_agregar">Agregar</string>
+    <string name="boton_cancelar">Cancelar</string>
+    <string name="rogar_ingresar_nombre">Por favor, ingresa un nombre para la receta</string>
+    <string name="receta_creada">Receta creada</string>
+    <string name="receta_creada_descripcion">Se ha creado la receta</string>
+    <string name="boton_eliminar">Eliminar</string>
+    <string name="language_section_title">Cambiar el idioma</string>
+    <string name="theme_section_title">Cambiar el tema</string>
+    <string name="spanish">Español</string>
+    <string name="basque">Euskera</string>
+    <string name="white">Blanco</string>
+    <string name="light_blue">Azul claro</string>
+    <string name="ingredientes">Ingredientes</string>
+    <string name="lista_ingredientes">Lista de ingredientes</string>
+    <string name="descripcion">Descripción</string>
+    <string name="descripcion_receta">Descripción de la receta</string>
+    <string name="es_vegano">¿Es vegano?</string>
+    <string name="boton_guardar">Guardar cambios</string>
+</resources>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Primera Entrega</string>
+    <string name="menu_recipes">Errezetak</string>
+    <string name="menu_settings">Ezarpenak</string>
+    <string name="vegano_label">Beganoa</string>
+    <string name="boton_anadir_receta">Errezeta gehitu</string>
+    <string name="nombre_nueva_receta">Errezeta berriaren izena</string>
+    <string name="boton_agregar">Gehitu</string>
+    <string name="boton_cancelar">Utzi</string>
+    <string name="rogar_ingresar_nombre">Jar iezaiozu izena errezetari, mesedez</string>
+    <string name="receta_creada">Errezeta gehituta</string>
+    <string name="receta_creada_descripcion">Errezeta hau gehitu da</string>
+    <string name="boton_eliminar">Ezabatu</string>
+    <string name="language_section_title">Hizkuntza aldatu</string>
+    <string name="theme_section_title">Tema aldatu</string>
+    <string name="spanish">Gaztelera</string>
+    <string name="basque">Euskera</string>
+    <string name="white">Zuria</string>
+    <string name="light_blue">Urdin argia</string>
+    <string name="ingredientes">Osagaiak</string>
+    <string name="lista_ingredientes">Osagaien zerrenda</string>
+    <string name="descripcion">Deskribapena</string>
+    <string name="descripcion_receta">Errezetaren deskribapena</string>
+    <string name="es_vegano">Beganoa da?</string>
+    <string name="boton_guardar">Aldaketak gorde</string>
+</resources>

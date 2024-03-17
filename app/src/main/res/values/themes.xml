@@ -1,0 +1,16 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Base.Theme.PrimeraEntrega" parent="Theme.Material3.DayNight.NoActionBar">
+    </style>
+
+    <style name="Theme.PrimeraEntrega" parent="Base.Theme.PrimeraEntrega" />
+
+    <!-- Definición del tema con el color de fondo blanco -->
+    <style name="Theme.PrimeraEntrega.White" parent="Base.Theme.PrimeraEntrega">
+        <item name="android:colorBackground">@android:color/white</item>
+    </style>
+
+    <!-- Definición del tema con el color de fondo azul claro -->
+    <style name="Theme.PrimeraEntrega.LightBlue" parent="Base.Theme.PrimeraEntrega">
+        <item name="android:colorBackground">@color/light_blue</item>
+    </style>
+</resources>
