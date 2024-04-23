@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
     <TextView
@@ -16,36 +15,43 @@
         android:id="@+id/nombreEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/nombreEditText"
         android:hint="@string/nombre_nueva_receta"
         android:minHeight="48dp" />
 
     <TextView
+        android:id="@+id/ingredientesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/ingredientes"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:layout_below="@id/nombreEditText"
         android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/ingredientesEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/ingredientesTextView"
         android:hint="@string/lista_ingredientes"
         android:minLines="3" />
 
     <TextView
+        android:id="@+id/descripcionTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/descripcion"
         android:textSize="18sp"
         android:textStyle="bold"
+        android:layout_below="@id/ingredientesEditText"
         android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/descripcionEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/descripcionTextView"
         android:hint="@string/descripcion_receta"
         android:minLines="3" />
 
@@ -54,6 +60,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/es_vegano"
+        android:layout_below="@id/descripcionEditText"
+        android:layout_marginTop="16dp" />
+
+    <ImageView
+        android:id="@+id/recipeImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/veganoCheckBox"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/changeImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/boton_foto"
+        android:layout_below="@id/recipeImageView"
         android:layout_marginTop="16dp" />
 
     <Button
@@ -61,6 +83,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/boton_guardar"
-        android:layout_marginTop="16dp" />
+        android:layout_alignTop="@id/changeImageButton"
+        android:layout_toEndOf="@id/changeImageButton"
+        android:layout_marginStart="16dp" />
 
-</LinearLayout>
+</RelativeLayout>

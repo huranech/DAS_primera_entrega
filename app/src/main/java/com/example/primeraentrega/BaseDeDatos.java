@@ -12,7 +12,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
 
     // atributos
     private static final String DATABASE_NAME = "baseDeDatos";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // patrón singleton (MAE)
     private static BaseDeDatos miBaseDeDatos;
@@ -35,7 +35,8 @@ public class BaseDeDatos extends SQLiteOpenHelper {
                 "nombre TEXT NOT NULL, " +
                 "ingredientes TEXT, " +
                 "descripcion TEXT," +
-                "vegano INT" +
+                "vegano INT," +
+                "imagen INT" +
                 ");");
     }
 
@@ -51,7 +52,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
     // métodos propios
 
     // añadir una receta
-    public void anadirReceta(String nombre, String ingredientes, String descripcion, int vegano) {
+    public void anadirReceta(String nombre, String ingredientes, String descripcion, int vegano, int idImagen) {
         if (!nombre.isEmpty()) {  // Check if name is not empty
             SQLiteDatabase db = this.getWritableDatabase();
             ContentValues values = new ContentValues();
@@ -63,6 +64,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
                 values.put("descripcion", descripcion);
             }
             values.put("vegano", vegano);
+            values.put("imagen", idImagen);
             db.insert("recetas", null, values);
             db.close();
         } else {
@@ -78,7 +80,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
     }
 
     // modificar una receta
-    public void modificarReceta(int id, String nuevoNombre, String nuevosIngredientes, String nuevaDescripcion, int nuevoVegano) {
+    public void modificarReceta(int id, String nuevoNombre, String nuevosIngredientes, String nuevaDescripcion, int nuevoVegano, int nuevaImagen) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         // Crear un objeto ContentValues para contener los nuevos valores
@@ -91,6 +93,7 @@ public class BaseDeDatos extends SQLiteOpenHelper {
             values.put("descripcion", nuevaDescripcion);
         }
         values.put("vegano", nuevoVegano);
+        values.put("imagen", nuevaImagen);
 
         // Realizar la actualización en la base de datos
         db.update("recetas", values, "_id = ?", new String[]{String.valueOf(id)});

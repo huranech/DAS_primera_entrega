@@ -17,10 +17,19 @@
     <string name="basque">Euskera</string>
     <string name="white">Blanco</string>
     <string name="light_blue">Azul claro</string>
+    <string name="log_out">Cerrar sesión</string>
+    <string name="manage_account">Gestionar Cuenta</string>
+    <string name="delete_account">Eliminar cuenta</string>
     <string name="ingredientes">Ingredientes</string>
     <string name="lista_ingredientes">Lista de ingredientes</string>
     <string name="descripcion">Descripción</string>
     <string name="descripcion_receta">Descripción de la receta</string>
     <string name="es_vegano">¿Es vegano?</string>
+    <string name="boton_foto">Cambiar imagen</string>
     <string name="boton_guardar">Guardar cambios</string>
+    <string name="username">Usuario</string>
+    <string name="password">Contraseña</string>
+    <string name="register">Registrarse</string>
+    <string name="login">Iniciar Sesión</string>
+    <string name="imagen">imagen</string>
 </resources>

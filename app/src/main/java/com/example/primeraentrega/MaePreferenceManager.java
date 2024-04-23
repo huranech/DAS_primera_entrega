@@ -17,6 +17,7 @@ public class MaePreferenceManager {
     private static MaePreferenceManager miPreferenceManager;
     private static final String KEY_LANGUAGE = "language";
     private static final String KEY_THEME = "theme";
+    private static final String KEY_LOGGED_IN = "logged_in";
     private SharedPreferences prefs;
 
     // patrón singleton (MAE)
@@ -76,5 +77,17 @@ public class MaePreferenceManager {
         if (themeId != -1) {
             context.setTheme(themeId);
         }
+    }
+
+    // establecer id de inicio de sesión
+    public void setLoginId(int loginID) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt(KEY_LOGGED_IN, loginID);
+        editor.apply();
+    }
+
+    // obtener id de inicio de sesión
+    public int getLoginId() {
+        return prefs.getInt(KEY_LOGGED_IN, -1);
     }
 }

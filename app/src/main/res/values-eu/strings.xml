@@ -17,10 +17,19 @@
     <string name="basque">Euskera</string>
     <string name="white">Zuria</string>
     <string name="light_blue">Urdin argia</string>
+    <string name="manage_account">Kontua kudeatu</string>
+    <string name="log_out">Saioa amaitu</string>
+    <string name="delete_account">Kontua ezabatu</string>
     <string name="ingredientes">Osagaiak</string>
     <string name="lista_ingredientes">Osagaien zerrenda</string>
     <string name="descripcion">Deskribapena</string>
     <string name="descripcion_receta">Errezetaren deskribapena</string>
     <string name="es_vegano">Beganoa da?</string>
+    <string name="boton_foto">Aldatu irudia</string>
     <string name="boton_guardar">Aldaketak gorde</string>
+    <string name="username">Erabiltzailea</string>
+    <string name="password">Pasahitza</string>
+    <string name="register">Erregistratu</string>
+    <string name="login">Saioa Hasi</string>
+    <string name="imagen">irudia</string>
 </resources>

@@ -44,6 +44,24 @@
         android:layout_height="wrap_content"
         android:text="@string/light_blue" />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/manage_account"
+        android:layout_marginTop="16dp"/>
+
+    <Button
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/log_out" />
+
+    <Button
+        android:id="@+id/deleteAccountButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_account" />
+
     <ImageView
         android:id="@+id/backgroundImageView"
         android:layout_width="match_parent"

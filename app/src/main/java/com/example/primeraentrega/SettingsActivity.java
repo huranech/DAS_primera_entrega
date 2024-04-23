@@ -10,10 +10,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.Observer;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 import com.example.primeraentrega.MaePreferenceManager;
 
 import java.util.Locale;
@@ -24,6 +31,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Button basqueButton;
     private Button whiteButton;
     private Button lightBlueButton;
+    private Button logoutButton;
+    private Button deleteAccountButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +56,16 @@ public class SettingsActivity extends AppCompatActivity {
         basqueButton = findViewById(R.id.basqueButton);
         whiteButton = findViewById(R.id.whiteButton);
         lightBlueButton = findViewById(R.id.lightBlueButton);
+        logoutButton = findViewById(R.id.logoutButton);
+        deleteAccountButton = findViewById(R.id.deleteAccountButton);
 
         // establecer listeners para los botones
         spanishButton.setOnClickListener(spanishButtonListener);
         basqueButton.setOnClickListener(basqueButtonListener);
         whiteButton.setOnClickListener(whiteButtonListener);
         lightBlueButton.setOnClickListener(lightBlueButtonListener);
+        logoutButton.setOnClickListener(logoutButtonListener);
+        deleteAccountButton.setOnClickListener(deleteAccountButtonListener);
     }
 
     // cambiar idioma a castellano
@@ -85,6 +98,28 @@ public class SettingsActivity extends AppCompatActivity {
         public void onClick(View v)
         {
             applyTheme(R.style.AppTheme_Blue);
+        }
+    };
+
+
+    // cerrar sesión
+    private final View.OnClickListener logoutButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // reiniciar id de usuario
+            MaePreferenceManager.getMiPreferenceManager(getApplicationContext()).setLoginId(-1);
+            // redirigir al usuario a la pantalla de inicio de sesión
+            startActivity(new Intent(SettingsActivity.this, RegisterLoginActivity.class));
+            finish(); // finalizar esta actividad después de cerrar sesión
+        }
+    };
+
+    // eliminar cuenta
+    private final View.OnClickListener deleteAccountButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int userId = MaePreferenceManager.getMiPreferenceManager(getApplicationContext()).getLoginId();
+            deleteUser(userId);
         }
     };
 
@@ -126,5 +161,49 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void deleteUser(int userId) {
+        // eliminar usuario de la base de datos
+        String delete_url = "http://34.65.250.38:8080/eliminar_usuario.php";
+
+        // preparar datos para la solicitud
+        Data inputData = new Data.Builder()
+                .putString("username", "")
+                .putString("password", "")
+                .putInt("userId", userId)
+                .putString("key", "delete")
+                .putString("url", delete_url)
+                .build();
+
+        OneTimeWorkRequest deleteRequest = new OneTimeWorkRequest.Builder(ConexionDBWebService.class)
+                .setInputData(inputData)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(deleteRequest);
+
+        // observer del resultado de la solicitud
+        WorkManager.getInstance(this).getWorkInfoByIdLiveData(deleteRequest.getId()).observe(this, new Observer<WorkInfo>() {
+
+
+            @Override
+            public void onChanged(WorkInfo workInfo) {
+                if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                    boolean success = workInfo.getOutputData().getBoolean("success", false);
+                    if (success) {
+                        // usuario eliminado con éxito
+                        Toast.makeText(SettingsActivity.this, "Se ha eliminado la cuenta", Toast.LENGTH_SHORT).show();
+                        // reiniciar id de usuario
+                        MaePreferenceManager.getMiPreferenceManager(getApplicationContext()).setLoginId(-1);
+                        // redirigir al usuario a la pantalla de inicio de sesión
+                        startActivity(new Intent(SettingsActivity.this, RegisterLoginActivity.class));
+                        finish(); // finalizar esta actividad después de eliminar la cuenta
+                    } else {
+                        // algo a fallado al intentar eliminar la cuenta
+                        Toast.makeText(SettingsActivity.this, "Algo ha fallado al eliminar la cuenta", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
     }
 }

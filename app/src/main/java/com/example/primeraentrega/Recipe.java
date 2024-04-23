@@ -7,14 +7,16 @@ public class Recipe {
     private String ingredientes;
     private String descripcion;
     private boolean vegano;
+    private int idImagen;
 
     // constructora
-    public Recipe(int id, String nombre, String ingredientes, String descripcion, boolean vegano) {
+    public Recipe(int id, String nombre, String ingredientes, String descripcion, boolean vegano, int idImagen) {
         this.id = id;
         this.nombre = nombre;
         this.ingredientes = ingredientes;
         this.descripcion = descripcion;
         this.vegano = vegano;
+        this.idImagen = idImagen;
     }
 
     // métodos getter y setter para los atributos
@@ -50,5 +52,13 @@ public class Recipe {
 
     public void setVegano(Boolean vegano) {
         this.vegano = vegano;
+    }
+
+    public void setIdImagen(int idImagen) {
+        this.idImagen = idImagen;
+    }
+
+    public int getIdImagen() {
+        return this.idImagen;
     }
 }

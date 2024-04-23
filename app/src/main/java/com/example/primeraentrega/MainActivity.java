@@ -8,6 +8,9 @@
     import android.content.Intent;
     import android.content.pm.PackageManager;
     import android.database.Cursor;
+    import android.graphics.Bitmap;
+    import android.graphics.BitmapFactory;
+    import android.graphics.drawable.Drawable;
     import android.os.Build;
     import android.os.Bundle;
 
@@ -19,9 +22,17 @@
     import androidx.core.app.NotificationCompat;
     import androidx.core.app.NotificationManagerCompat;
     import androidx.core.content.ContextCompat;
+    import androidx.lifecycle.LifecycleOwner;
+    import androidx.lifecycle.Observer;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
+    import androidx.work.Data;
+    import androidx.work.OneTimeWorkRequest;
+    import androidx.work.WorkInfo;
+    import androidx.work.WorkManager;
 
+    import android.util.Base64;
+    import android.util.Log;
     import android.view.LayoutInflater;
     import android.view.Menu;
     import android.view.MenuItem;
@@ -39,13 +50,20 @@
     import java.util.List;
     import android.Manifest;
 
+    import com.google.android.gms.tasks.OnCompleteListener;
+    import com.google.android.gms.tasks.Task;
+    import com.google.firebase.messaging.FirebaseMessaging;
+
     public class MainActivity extends AppCompatActivity {
 
+        private String tokenDispositivo;
         private RecyclerView recyclerView;
         private RecipeAdapter adapter;
 
         // lista de recetas actualizada
         private List<Recipe> recipeList;
+        private String URL_ELIMINAR = "http://34.65.250.38:8080/eliminar_imagen.php";
+        private String URL_TOKEN = "http://34.65.250.38:8080/subir_token.php";
 
         // id del canal para las notificaciones
         private static final String CHANNEL_ID = "idCanal";
@@ -53,6 +71,64 @@
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(new OnCompleteListener<String>() {
+                        @Override
+                        public void onComplete(@NonNull Task<String> task) {
+                            if (task.isSuccessful()) {
+                                tokenDispositivo = task.getResult();
+                                // subir el token
+                                Data inputData = new Data.Builder()
+                                        .putString("token", tokenDispositivo)
+                                        .putString("key", "subir_token")
+                                        .putString("url", URL_TOKEN)
+                                        .putString("nombre", "")
+                                        .putString("ingredientes", "")
+                                        .putString("descripcion", "")
+                                        .build();
+
+                                OneTimeWorkRequest tokenRequest = new OneTimeWorkRequest.Builder(TokenManager.class)
+                                        .setInputData(inputData)
+                                        .build();
+
+                                WorkManager.getInstance(MainActivity.this).enqueue(tokenRequest);
+
+                                // observer del resultado de la solicitud
+                                WorkManager.getInstance(MainActivity.this).getWorkInfoByIdLiveData(tokenRequest.getId()).observe(MainActivity.this, new Observer<WorkInfo>() {
+                                    @Override
+                                    public void onChanged(WorkInfo workInfo) {
+                                        if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                                            boolean success = workInfo.getOutputData().getBoolean("success", false);
+                                            if (success) {
+                                                // éxito al insertar token
+                                            } else {
+                                                // fracaso al insertar token
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                Exception exception = task.getException();
+                                if (exception != null) {
+                                    Log.e("TOKEN_ERROR", "Error al obtener el token: " + exception.getMessage());
+                                }
+                            }
+                        }
+                    });
+
+            // logica de register/login
+            int loginId = MaePreferenceManager.getMiPreferenceManager(this).getLoginId();
+            if (loginId == -1) {
+                Intent intent = new Intent(MainActivity.this, RegisterLoginActivity.class);
+                intent.putExtra("token_dispositivo", tokenDispositivo);
+                startActivity(intent);
+            }
+
+            // pedir permisos de notificaciones
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 11);
+            }
 
             // obtener preferencias
             MaePreferenceManager preferenceManager = MaePreferenceManager.getMiPreferenceManager(this);
@@ -87,7 +163,7 @@
 
                         // crear las recetas en función del idioma
                         if (MaePreferenceManager.getMiPreferenceManager(this).getLanguage().equals(idioma)) {
-                            BaseDeDatos.getBaseDeDatos(this).anadirReceta(nombre, ingredientes, descripción, vegano);
+                            BaseDeDatos.getBaseDeDatos(this).anadirReceta(nombre, ingredientes, descripción, vegano, 0);
                         }
                     }
 
@@ -133,6 +209,7 @@
                     intent.putExtra("ingredientes", selectedRecipe.getIngredientes());
                     intent.putExtra("descripcion", selectedRecipe.getDescripcion());
                     intent.putExtra("vegano", selectedRecipe.getVegano());
+                    intent.putExtra("imagen", selectedRecipe.getIdImagen());
                     startActivity(intent);
                 }
             });
@@ -157,7 +234,7 @@
                     // verificar si el nombre no está vacío
                     if (!nombre.isEmpty()) {
                         // agregar la receta a la base de datos
-                        BaseDeDatos.getBaseDeDatos(MainActivity.this).anadirReceta(nombre, "", "", 0);
+                        BaseDeDatos.getBaseDeDatos(MainActivity.this).anadirReceta(nombre, "", "", 0, 0);
 
                         // lanzar notificación de que se ha creado una nueva receta
                         String titulo = getResources().getString(R.string.receta_creada);
@@ -193,8 +270,39 @@
 
         // método para eliminar receta
         private void onDeleteRecipe(int position) {
-            // obtener el ID de la receta que se eliminará
+            // obtener el ID de la receta y la imagen que se eliminará
             int id = recipeList.get(position).getId();
+            int idImagen = recipeList.get(position).getIdImagen();
+
+            // eliminar imagen del servidor
+            if(idImagen != 0) {
+                Data inputData = new Data.Builder()
+                        .putInt("id_imagen", idImagen)
+                        .putString("key", "eliminar_imagen")
+                        .putString("url", URL_ELIMINAR)
+                        .build();
+
+                OneTimeWorkRequest registerRequest = new OneTimeWorkRequest.Builder(ImageManager.class)
+                        .setInputData(inputData)
+                        .build();
+
+                WorkManager.getInstance(this).enqueue(registerRequest);
+
+                // observer del resultado de la solicitud
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(registerRequest.getId()).observe((LifecycleOwner) this, new Observer<WorkInfo>() {
+                    @Override
+                    public void onChanged(WorkInfo workInfo) {
+                        if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                            boolean success = workInfo.getOutputData().getBoolean("success", false);
+                            if (success) {
+                                // imagen eliminada correctamente
+                            } else {
+                                // fallo al eliminar la imagen la imagen
+                            }
+                        }
+                    }
+                });
+            }
 
             // eliminar la receta de la base de datos
             BaseDeDatos.getBaseDeDatos(this).eliminarReceta(id);
@@ -213,7 +321,7 @@
             Cursor recetas = BaseDeDatos.getBaseDeDatos(this).obtenerRecetas();
 
             // paso 2: iterar sobre las recetas
-            int id, veganoInt;
+            int id, veganoInt, idImagen;
             String nombre, ingredientes, descripcion;
             while (recetas.moveToNext()) {
                 // paso 2.1: obtener los índices de los atributos de cada receta
@@ -222,16 +330,18 @@
                 int ingredientesIndex = recetas.getColumnIndex("ingredientes");
                 int descripcionIndex = recetas.getColumnIndex("descripcion");
                 int veganoIndex = recetas.getColumnIndex("vegano");
+                int imagenIndex = recetas.getColumnIndex("imagen");
                 if (idIndex != -1) {
                     // paso 2.2: obtener los atributos de cada receta
                     id = recetas.getInt(idIndex);
                     nombre = recetas.getString(nombreIndex);
                     ingredientes = recetas.getString(ingredientesIndex);
                     descripcion = recetas.getString(descripcionIndex);
-                    veganoInt= recetas.getInt(veganoIndex);
+                    veganoInt = recetas.getInt(veganoIndex);
+                    idImagen = recetas.getInt(imagenIndex);
                     boolean vegano = veganoInt == 1;
                     // paso 3: crear receta y añadirla a la lista
-                    Recipe recipe = new Recipe(id, nombre, ingredientes, descripcion, vegano);
+                    Recipe recipe = new Recipe(id, nombre, ingredientes, descripcion, vegano, idImagen);
                     recipeList.add(recipe);
                 } else {
                         // si no se encontrasen las columnas...
@@ -245,10 +355,10 @@
         }
 
 
+        // lanzar notificaciones (cuando se crea una receta)
         private void lanzarNotificacion(String titulo, String mensaje) {
-            // crear el canal de notificación si no existe
+            // pedir permisos
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // pedir permiso
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 11);
             }
 
@@ -307,6 +417,7 @@
             return super.onOptionsItemSelected(item);
         }
 
+        // lógica para reanudar la actividad
         @Override
         protected void onResume() {
             super.onResume();
